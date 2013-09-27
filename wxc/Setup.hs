@@ -8,7 +8,7 @@ import Distribution.Simple.InstallDirs (InstallDirs(..))
 import Distribution.Simple.LocalBuildInfo (LocalBuildInfo, localPkgDescr, installedPkgs, withPrograms, buildDir, absoluteInstallDirs)
 import Distribution.Simple.PackageIndex(SearchResult (..), searchByName )
 import Distribution.Simple.Program (ConfiguredProgram (..), lookupProgram, runProgram, simpleProgram, locationPath)
-import Distribution.Simple.Setup (ConfigFlags, BuildFlags, InstallFlags, CopyDest(..), fromFlag, installVerbosity)
+import Distribution.Simple.Setup (ConfigFlags, BuildFlags, InstallFlags, CopyFlags(..), CopyDest(..), fromFlag, installVerbosity)
 import Distribution.Simple.Utils (installOrdinaryFile)
 import Distribution.System (OS (..), Arch (..), buildOS, buildArch)
 import Distribution.Verbosity (normal, verbose)
@@ -32,7 +32,7 @@ readProcess cmd args stdin =
     E.throwIO err
 
 main :: IO ()
-main = defaultMainWithHooks simpleUserHooks { confHook = myConfHook, buildHook = myBuildHook, instHook = myInstHook }
+main = defaultMainWithHooks simpleUserHooks { confHook = myConfHook, buildHook = myBuildHook, copyHook = myCopyHook }
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -287,12 +287,12 @@ ldconfig path = case buildOS of
                 ExitSuccess -> return ()
                 otherwise -> error "Couldn't execute ldconfig, ensure it is on your path"
 
-myInstHook :: PackageDescription -> LocalBuildInfo -> UserHooks -> InstallFlags -> IO ()
-myInstHook pkg_descr local_bld_info user_hooks inst_flags = 
+myCopyHook :: PackageDescription -> LocalBuildInfo -> UserHooks -> CopyFlags -> IO ()
+myCopyHook pkg_descr local_bld_info user_hooks copy_flags =
     do
-    -- Perform simpleUserHooks instHook (to copy installIncludes)
-    instHook simpleUserHooks pkg_descr local_bld_info user_hooks inst_flags
-
+    -- Perform simpleUserHooks copyHook (to copy includes)
+    copyHook simpleUserHooks pkg_descr local_bld_info user_hooks copy_flags
+    
     -- Copy shared library
     let bld_dir = buildDir local_bld_info
 
@@ -303,8 +303,8 @@ myInstHook pkg_descr local_bld_info user_hooks inst_flags =
         dll_name = fromJust (lookup "x-dll-name" custom_bi)
         lib_name = sharedLibName ver dll_name
 
-        inst_lib_dir = libdir $ absoluteInstallDirs pkg_descr local_bld_info NoCopyDest
+        dest_lib_dir = libdir $ absoluteInstallDirs pkg_descr local_bld_info (fromFlag (copyDest copy_flags))
 
-    installOrdinaryFile (fromFlag (installVerbosity inst_flags)) (bld_dir </> lib_name) (inst_lib_dir </> lib_name)
-    ldconfig inst_lib_dir
+    installOrdinaryFile (fromFlag (copyVerbosity copy_flags)) (bld_dir </> lib_name) (dest_lib_dir </> lib_name)
+    ldconfig dest_lib_dir
 
