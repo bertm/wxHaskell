@@ -76,10 +76,7 @@ myConfHook (pkg0, pbi) flags = do
     let libbi     = libBuildInfo lib
     let custom_bi = customFieldsBI libbi
 
-    let libbi' = libbi
-          { extraLibDirs = extraLibDirs libbi ++ [wxcDirectory]
-          , extraLibs    = extraLibs    libbi ++ ["wxc"]
-          , ldOptions    = ldOptions    libbi ++ ["-Wl,-rpath," ++ wxcDirectory]  }
+    let libbi' = libbi { extraLibs = extraLibs libbi ++ ["wxc"] }
 
     let lib' = lib { libBuildInfo = libbi' }
     let lpd' = lpd { library = Just lib' }

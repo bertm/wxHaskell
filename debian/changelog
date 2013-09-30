@@ -1,3 +1,22 @@
+haskell-wxhaskell (0.90.1.0+git816~ppa1) raring; urgency=low
+
+  * Packaging fix for library resolving and build environment leakage.
+
+ -- Bert Massop <bert.massop@gmail.com>  Mon, 30 Sep 2013 23:16:36 +0200
+
+haskell-wxhaskell (0.90.1.0+git815~ppa1) raring; urgency=low
+
+  * Henk-Jan van Tuyl: bitmapButton now displays the image properly;
+    solved assert failure in bitmapToggleButton
+  * Henk-Jan van Tuyl: Corrected Haddocked comments
+  * Henk-Jan van Tuyl: Introduce new names for border constants
+  * Henk-Jan van Tuyl: Added Show instances for Prop and Attr, updated
+    instance documentation
+  * Henk-Jan van Tuyl: Merge remote-tracking branch 'origin/master'
+  * Henk-Jan van Tuyl: Made some sample programs compilable
+
+ -- Bert Massop <bert.massop@gmail.com>  Mon, 30 Sep 2013 17:49:33 +0200
+
 haskell-wxhaskell (0.90.1.0+git805~ppa1) raring; urgency=low
 
   * Initial release.

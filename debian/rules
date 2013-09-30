@@ -35,6 +35,7 @@ export HOME = /i_am_not_a_home_directory
 
 # Include our intermediate executable directory in the path.
 export PATH = $(shell echo $$PATH:$(BIN_DIR))
+export LD_LIBRARY_PATH = $(shell echo $$LD_LIBRARY_PATH:$(LIB_DIR))
 
 # Do not delete intermediate files: we may still need them in the future, and
 # regeneration may take a long time.
@@ -87,7 +88,9 @@ $(PACKAGE_CONF_DIR):
 	[ ! -e $*/result/usr/bin/ ] || (cd $*/result/usr/bin/; find . \
 		-exec install -Dm 755 '{}' $(BIN_DIR)/'{}' ';')
 	[ ! -e $*/result/usr/lib/ ] || (cd $*/result/usr/lib/; find . \
-		-name \*.so -execdir install -Dm 644 '{}' $(LIB_DIR)/'{}' ';')
+		\( -name lib\*.so.\* -o -name lib\*.so \) \! -type l \
+		-execdir install -Dm 644 '{}' $(LIB_DIR)/'{}' ';')
+	ldconfig -n $(LIB_DIR)
 	touch $@
 	
 
@@ -97,8 +100,12 @@ $(PACKAGE_CONF_DIR):
 		-exec install -Dm 644 '{}' "$(CURDIR)"/debian/libghc-$*-dev/'{}' ';'
 	cd $*/result ; [ ! -e usr/bin/ ] || find usr/bin/ \
 		-exec install -Dm 755 '{}' "$(CURDIR)"/debian/libghc-$*-dev/'{}' ';'
+	[ ! -e $*/result/usr/lib/ ] || (cd $*/result/usr/lib/; find . \
+		\( -name lib\*.so.\* -o -name lib\*.so \) \! -type l \
+		-execdir install -Dm 644 '{}' "$(CURDIR)"/debian/libghc-$*-dev/usr/lib/'{}' ';')
 	pkg_config=`cd $*; ./Setup register --builddir=build --gen-pkg-config | tr -d ' \n' | sed -r 's,^.*:,,'`; \
 		[ -n "$$pkg_config" ] || (echo "ERROR: no package config generated for $*" && exit 1); \
+		sed -i 's#$(LIB_DIR)[^ ]*##g;/^\s*$$/d' $*/$$pkg_config; \
 		install -Dm 644 $*/$$pkg_config debian/libghc-$*-dev/var/lib/ghc/package.conf.d/$$pkg_config; \
 		rm -f $*/$$pkg_config
 	debian/scripts/dh_haskell_provides -plibghc-$*-dev --package-db=$(PACKAGE_CONF_DIR)
