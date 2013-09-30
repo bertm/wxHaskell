@@ -1,0 +1,52 @@
+Source: haskell-wxhaskell
+Section: libdevel
+Priority: optional
+Maintainer: Bert Massop <bert.massop@gmail.com>
+Standards-Version: 3.9.4
+Build-Depends: debhelper (>= 5), cdbs, dctrl-tools, ghc,
+               libghc-parsec3-dev,
+               libghc-strict-dev,
+               libghc-stm-dev,
+               libwxgtk2.9-dev, mesa-common-dev
+Homepage: http://haskell.org/haskellwiki/WxHaskell
+
+Package: libghc-wxdirect-dev
+Architecture: any
+Depends: ${haskell:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Provides: ${haskell:Provides}
+Description: Helper tool for building wxHaskell
+ wxHaskell is a portable and native GUI library for Haskell. It is built on
+ top of wxWidgets, a comprehensive C++ library that is portable across all
+ major GUI platforms, including GTK, Windows, X11, and MacOS X. This version
+ works with wxWidgets 2.9 only.
+
+Package: libghc-wxc-dev
+Architecture: any
+Depends: ${haskell:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Provides: ${haskell:Provides}
+Description: wxHaskell C++ wrapper
+ wxHaskell is a portable and native GUI library for Haskell. It is built on
+ top of wxWidgets, a comprehensive C++ library that is portable across all
+ major GUI platforms, including GTK, Windows, X11, and MacOS X. This version
+ works with wxWidgets 2.9 only.
+
+Package: libghc-wxcore-dev
+Architecture: any
+Depends: ${haskell:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Provides: ${haskell:Provides}
+Description: wxHaskell core
+ wxHaskell is a portable and native GUI library for Haskell. It is built on
+ top of wxWidgets, a comprehensive C++ library that is portable across all
+ major GUI platforms, including GTK, Windows, X11, and MacOS X. This version
+ works with wxWidgets 2.9 only.
+
+Package: libghc-wx-dev
+Architecture: any
+Depends: ${haskell:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Provides: ${haskell:Provides}
+Description: wxHaskell
+ wxHaskell is a portable and native GUI library for Haskell. It is built on
+ top of wxWidgets, a comprehensive C++ library that is portable across all
+ major GUI platforms, including GTK, Windows, X11, and MacOS X. This version
+ works with wxWidgets 2.9 only.
+

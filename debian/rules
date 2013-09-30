@@ -1,0 +1,109 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+export GREP_OPTIONS :=
+
+# Some bogus directory in which we place the temporary package database.
+PACKAGE_CONF_DIR = $(CURDIR)/debian/package.conf.d
+
+# Another bogus directory we can use for temporarily installing executables.
+BIN_DIR = $(CURDIR)/debian/bin
+LIB_DIR = $(CURDIR)/debian/lib
+
+TARGETS += wxdirect
+wxdirect/deps: ;
+build/libghc-wxdirect-dev:: wxdirect/build
+install/libghc-wxdirect-dev:: wxdirect/install
+
+TARGETS += wxc
+wxc/deps: wxdirect/register ;
+build/libghc-wxc-dev:: wxc/build
+install/libghc-wxc-dev:: wxc/install
+
+TARGETS += wxcore
+wxcore/deps: wxc/register wxdirect/register ;
+build/libghc-wxcore-dev:: wxc/build
+install/libghc-wxcore-dev:: wxcore/install
+
+TARGETS += wx
+wx/deps: wxc/register wxcore/register;
+build/libghc-wxc-dev:: wx/build
+install/libghc-wxc-dev:: wx/install
+
+# Cabal appears to require a home.
+export HOME = /i_am_not_a_home_directory
+
+# Include our intermediate executable directory in the path.
+export PATH = $(shell echo $$PATH:$(BIN_DIR))
+
+# Do not delete intermediate files: we may still need them in the future, and
+# regeneration may take a long time.
+.SECONDARY:
+.PHONY: %/build %/install %/register %/deps
+
+clean::
+	for target in $(TARGETS); do cd $$target; \
+		rm -f configured-stamp built-stamp finished-stamp installed-stamp registered-stamp; \
+		rm -rf build result; \
+		rm -f Setup Setup.hi Setup.o; \
+	cd ..; done
+	rm -rf $(PACKAGE_CONF_DIR)
+	rm -f debian/*.substvar
+	rm -rf $(BIN_DIR) $(LIB_DIR)
+
+%/build: %/built-stamp ;
+%/install: %/installed-stamp ;
+%/register: %/registered-stamp ;
+
+%/Setup: %/deps
+	cd $*; ([ -e Setup.hs ] && ghc --make Setup.hs -o Setup) \
+	    || ([ -e Setup.lhs ] && ghc --make Setup.lhs -o Setup) \
+	    || (echo "No valid Cabal Setup.[l]hs file for $*" && exit 1)
+
+%/configured-stamp: $(PACKAGE_CONF_DIR) %/Setup
+	cd $*; ./Setup configure --ghc -v2 \
+		--prefix=/usr --libdir=/usr/lib/haskell-packages/ghc/lib \
+		--builddir=build \
+		--package-db=$(PACKAGE_CONF_DIR) \
+		--extra-lib-dirs=$(LIB_DIR)
+	touch $@
+
+%/built-stamp: %/configured-stamp
+	cd $*; ./Setup build --builddir=build
+	touch $@
+
+%/finished-stamp: %/Setup %/built-stamp
+	cd $*; ./Setup copy --builddir=build --destdir=result
+	touch $@
+
+$(PACKAGE_CONF_DIR):
+	ghc-pkg init $(PACKAGE_CONF_DIR)
+
+%/registered-stamp: $(PACKAGE_CONF_DIR) %/finished-stamp
+	pkg_config=`cd $*; ./Setup register --builddir=build --gen-pkg-config --inplace | tr -d ' \n' | sed -r 's,^.*:,,'`; \
+		[ -n "$$pkg_config" ] || (echo "ERROR: no inplace package config generated for $*" && exit 1); \
+		mv $*/$$pkg_config $(PACKAGE_CONF_DIR)
+	ghc-pkg recache --package-conf=$(PACKAGE_CONF_DIR)
+	[ ! -e $*/result/usr/bin/ ] || (cd $*/result/usr/bin/; find . \
+		-exec install -Dm 755 '{}' $(BIN_DIR)/'{}' ';')
+	[ ! -e $*/result/usr/lib/ ] || (cd $*/result/usr/lib/; find . \
+		-name \*.so -execdir install -Dm 644 '{}' $(LIB_DIR)/'{}' ';')
+	touch $@
+	
+
+%/installed-stamp: %/finished-stamp
+	cd $*/result ; [ ! -e usr/lib/ ] || find usr/lib/haskell-packages/ghc/lib/ \
+		\( ! -name "*_p.a" ! -name "*.p_hi" \) \
+		-exec install -Dm 644 '{}' "$(CURDIR)"/debian/libghc-$*-dev/'{}' ';'
+	cd $*/result ; [ ! -e usr/bin/ ] || find usr/bin/ \
+		-exec install -Dm 755 '{}' "$(CURDIR)"/debian/libghc-$*-dev/'{}' ';'
+	pkg_config=`cd $*; ./Setup register --builddir=build --gen-pkg-config | tr -d ' \n' | sed -r 's,^.*:,,'`; \
+		[ -n "$$pkg_config" ] || (echo "ERROR: no package config generated for $*" && exit 1); \
+		install -Dm 644 $*/$$pkg_config debian/libghc-$*-dev/var/lib/ghc/package.conf.d/$$pkg_config; \
+		rm -f $*/$$pkg_config
+	debian/scripts/dh_haskell_provides -plibghc-$*-dev --package-db=$(PACKAGE_CONF_DIR)
+	debian/scripts/dh_haskell_depends -plibghc-$*-dev --package-db=$(PACKAGE_CONF_DIR)
+	debian/scripts/dh_haskell_shlibdeps -plibghc-$*-dev --package-db=$(PACKAGE_CONF_DIR)
+	touch $@
+
+
