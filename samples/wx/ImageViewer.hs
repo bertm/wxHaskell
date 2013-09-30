@@ -1,5 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-
 {-----------------------------------------------------------------------------------------
  Copyright (c) Daan Leijen 2003
  wxWindows License.
@@ -14,8 +12,8 @@
 -----------------------------------------------------------------------------------------}
 module Main where
 
+import Control.Exception (onException)
 import Graphics.UI.WX 
-import Control.Exception
 
 main :: IO ()
 main
@@ -110,7 +108,7 @@ imageViewer
            bmsize <- get bm size
            set sw [virtualSize := bmsize]
            repaint sw
-       `catch` \(_ :: SomeException) -> repaint sw
+       `onException` repaint sw
 
     onPaint vbitmap dc viewArea
       = do mbBitmap <- get vbitmap value

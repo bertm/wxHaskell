@@ -24,6 +24,7 @@ APPS= BouncingBalls\
       Paint\
       Print\
       Process\
+      PropertyGrid    \
       TestTaskBarIcon \
       TimeFlows\
       TimeFlowsEx\
