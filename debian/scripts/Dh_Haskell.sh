@@ -21,7 +21,12 @@ dependency(){
 }
 
 ghc_pkg_field(){
-    ghc-pkg $pkgdb --global field $@ | head -n1
+    local db=${pkgdb##--package-db=}
+    if [ -n "$db" ]
+    then
+        db=-f $db
+    fi
+    ghc-pkg $db --global field $@ | head -n1
 }
 
 providing_package_for_ghc(){

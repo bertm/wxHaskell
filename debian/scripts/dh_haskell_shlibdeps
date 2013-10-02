@@ -74,7 +74,7 @@ do
             pkgname=`basename debian/$pkg/usr/lib/haskell-packages/ghc/lib/* | sed -e 's/-[^-]\+$//'`
             touch $sfile
             echo "module Main where main = return ()" > $T_DIR/a.hs
-            ghc --make $T_DIR/a.hs -o $T_DIR/a.out -package-db \
+            ghc --make $T_DIR/a.hs -o $T_DIR/a.out -package-conf \
                 $T_DIR -package $pkgname
             dpkg-shlibdeps -Tdebian/$pkg.substvars $T_DIR/a.out
 
