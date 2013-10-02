@@ -20,11 +20,7 @@ EWXWEXPORT(wxCursor*,Cursor_CreateLoad)(wxString* name,long type,int width,int h
 #else
     long bm_type = type;
 #endif
-#if defined(__WXGTK__)
-    return NULL;
-#else
     return new wxCursor(*name, bm_type, width, height);
-#endif
 }
 
 }

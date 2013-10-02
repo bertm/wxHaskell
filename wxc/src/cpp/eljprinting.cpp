@@ -1,8 +1,6 @@
 #include "wrapper.h"
 
-#if !defined(__WXGTK__)
-# include <wx/dcprint.h>
-#endif
+#include <wx/dcprint.h>
 
 #if defined(wxUSE_POSTSCRIPT) && (wxUSE_POSTSCRIPT==0)
 # undef wxUSE_POSTSCRIPT
@@ -844,30 +842,20 @@ EWXWEXPORT(int,wxPostScriptDC_GetResolution)(wxPostScriptDC* self,int ppi)
 
 EWXWEXPORT(void*,wxPrinterDC_Create)(wxPrintData* printData)
 {
-#if defined(__WXGTK__) 
-	return NULL;
-#else
 	return new wxPrinterDC(*printData);
-#endif
 }
 
 EWXWEXPORT(void,wxPrinterDC_Delete)(void* self)
 {
-#if !defined(__WXGTK__)
 	delete (wxPrinterDC*)self;
-#endif
 }
 
 
 EWXWEXPORT(wxRect*,wxPrinterDC_GetPaperRect)(void* self)
 {
-#if !defined(__WXGTK__)
 	wxRect* rct = new wxRect();
 	*rct = ((wxPrinterDC*)self)->GetPaperRect();
 	return rct;
-#else
-	return 0;
-#endif
 }
 
 }

@@ -2,11 +2,8 @@
 #include "wx/tooltip.h"
 #include "wx/dynlib.h"
 #include "wx/fs_zip.h"
+#include "wx/quantize.h"
 
-/* quantize is not supported on wxGTK 2.4.0 */
-#if !defined(__WXGTK__) || (wxVERSION_NUMBER > 2400)
-#  include "wx/quantize.h"
-#endif
 
 /*-----------------------------------------------------------------------------
     Miscellaneous helper functions
@@ -559,11 +556,7 @@ EWXWEXPORT(void,ELJApp_Sleep)(int _scs)
 
 EWXWEXPORT(void,ELJApp_MilliSleep)(int _mscs)
 {
-#if (wxVERSION_NUMBER < 2600)
-        wxUsleep(_mscs);
-#else
         wxMilliSleep(_mscs);
-#endif
 }
 
 EWXWEXPORT(bool,ELJApp_IsTerminating)()
@@ -573,20 +566,12 @@ EWXWEXPORT(bool,ELJApp_IsTerminating)()
 
 EWXWEXPORT(int,QuantizePalette)(void* src,void* dest,void* pPalette,int desiredNoColours,void* eightBitData,int flags)
 {
-#if defined(__WXGTK__) && (wxVERSION_NUMBER <= 2400)
-	return 0;
-#else
         return (int)wxQuantize::Quantize(*((wxImage*)src), *((wxImage*)dest), (wxPalette**)pPalette, desiredNoColours, (unsigned char**)eightBitData, flags);
-#endif
 }
 
 EWXWEXPORT(int,Quantize)(void* src,void* dest,int desiredNoColours,void* eightBitData,int flags)
 {
-#if defined(__WXGTK__) && (wxVERSION_NUMBER <= 2400)
-	return 0;
-#else
         return (int)wxQuantize::Quantize(*((wxImage*)src), *((wxImage*)dest), desiredNoColours, (unsigned char**)eightBitData, flags);
-#endif
 }
 
 

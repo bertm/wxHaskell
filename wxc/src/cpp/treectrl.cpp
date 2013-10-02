@@ -76,14 +76,10 @@ EWXWEXPORT(wxTreeItemId*,wxTreeItemId_Clone)(wxTreeItemId* self)
 // funture.
 EWXWEXPORT(wxTreeItemId*,wxTreeItemId_CreateFromValue)(intptr_t value)
 {
-#if wxVERSION_NUMBER < 2800
-	return new wxTreeItemId( value );
-#else
 	// TODO: This function should be removed. No longer any equivalent in wxWidgets
 	wxTreeItemId *item = new wxTreeItemId();
 	item->m_pItem = reinterpret_cast<wxTreeItemIdValue>(value);
 	return item;
-#endif
 }
 
 EWXWEXPORT(intptr_t,wxTreeItemId_GetValue)(wxTreeItemId* self)
@@ -120,12 +116,7 @@ EWXWEXPORT(wxTreeCtrl*,wxTreeCtrl_Create2)(wxWindow* _prt,int _id,int _lft,int _
 
 EWXWEXPORT(int,wxTreeCtrl_GetCount)(wxTreeCtrl* self)
 {
-	int result =(int)self->GetCount();
-#ifdef __WXGTK__
-	wxTreeItemId t = self->GetRootItem();
-	if (t.IsOk()) result++;
-#endif
-	return result;
+	return self->GetCount();
 }
 	
 EWXWEXPORT(int,wxTreeCtrl_GetIndent)(wxTreeCtrl* self)
@@ -326,15 +317,7 @@ EWXWEXPORT(int,wxTreeCtrl_GetSelections)(wxTreeCtrl* self,intptr_t* selections)
             /*
 			*(((wxTreeItemId**)selections)[i]) = sel[i];
             */
-#if (wxVERSION_NUMBER < 2800)
-	    #if wxCHECK_VERSION(2,5,0)
-            selections[i] = (intptr_t)(((wxTreeItemId*)sel[i])->m_pItem);
-        #else
-	        selections[i] = (intptr_t)(sel[i].m_pItem);
-	    #endif
-#else
             selections[i] = (intptr_t)(((wxTreeItemId)sel[i]).m_pItem);
-#endif
 	  }
 	}
 	return result;
@@ -342,29 +325,17 @@ EWXWEXPORT(int,wxTreeCtrl_GetSelections)(wxTreeCtrl* self,intptr_t* selections)
 	
 EWXWEXPORT(void,wxTreeCtrl_GetParent)(wxTreeCtrl* self,wxTreeItemId* item,wxTreeItemId* _item)
 {
-#if wxVERSION_NUMBER < 2400
-	*_item = self->GetParent(*item);
-#else
 	*_item = self->GetItemParent(*item);
-#endif
 }
 	
 EWXWEXPORT(void,wxTreeCtrl_GetFirstChild)(wxTreeCtrl* self,wxTreeItemId* item,void* cookie,wxTreeItemId* _item)
 {
-#if wxVERSION_NUMBER < 2600
-	*_item = self->GetFirstChild(*item,*((long*)cookie));
-#else
 	*_item = self->GetFirstChild(*item, cookie);
-#endif
 }
 	
 EWXWEXPORT(void,wxTreeCtrl_GetNextChild)(wxTreeCtrl* self,wxTreeItemId* item,void* cookie,wxTreeItemId* _item)
 {
-#if wxVERSION_NUMBER < 2600
 	*_item = self->GetNextChild(*item,*((long*)cookie));
-#else
-	*_item = self->GetNextChild(*item, cookie);
-#endif
 }
 	
 EWXWEXPORT(void,wxTreeCtrl_GetLastChild)(wxTreeCtrl* self,wxTreeItemId* item,wxTreeItemId* _item)
