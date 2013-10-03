@@ -1,3 +1,9 @@
+haskell-wxhaskell (0.90.1.0+git821~ppa1~raring1) raring; urgency=low
+
+  * Correct versioning scheme.
+
+ -- Bert Massop <bert.massop@gmail.com>  Thu, 03 Oct 2013 14:34:38 +0200
+
 haskell-wxhaskell (0.90.1.0+git819~ppa1) raring; urgency=low
 
   * Minor updates.
