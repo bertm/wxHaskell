@@ -15,7 +15,11 @@ EWXWEXPORT(void*,wxPen_CreateFromColour)(wxColour* col,int width,int style)
 
 EWXWEXPORT(void*,wxPen_CreateFromBitmap)(wxBitmap* stipple,int width)
 {
+#ifdef __WXGTK__
+        return 0;
+#else
 	return new wxPen(*stipple, width);
+#endif
 }
 
 EWXWEXPORT(void*,wxPen_CreateFromStock)(int id)
@@ -99,13 +103,21 @@ EWXWEXPORT(void,wxPen_SetDashes)(void* self,int nb_dashes,void* dash)
 	
 EWXWEXPORT(void,wxPen_SetJoin)(void* self,int join)
 {
+#if (wxVERSION_NUMBER < 2900)
+    int _join = join;
+#else
     wxPenJoin _join = (wxPenJoin) join;
+#endif
 	((wxPen*)self)->SetJoin(_join);
 }
 	
 EWXWEXPORT(void,wxPen_SetCap)(void* self,int cap)
 {
+#if (wxVERSION_NUMBER < 2900)
+    int _cap = cap;
+#else
     wxPenCap _cap = (wxPenCap) cap;
+#endif
 	((wxPen*)self)->SetCap(_cap);
 }
 	
