@@ -16,7 +16,25 @@ This is *not* the development branch of wxHaskell. Please refer to [wxHaskell/wx
 Status
 ======
 
-This fork compiles against wxWidgets 2.9.3 on Ubuntu Raring (13.04).
-wxWidgets 2.9 is not in the standard repository, but the [binary packages by Sven Eckelman](https://launchpad.net/~sven-eckelmann/+archive/ppa-wxwidgets2.9/) can be used to compile against.
+Prebuilt binary packages for Ubuntu Raring (13.04) and Ubuntu Precise (12.04 LTS), built using this tree, are [provided on my Launchpad PPA](https://launchpad.net/~bert-massop/+archive/wxhaskell/).
+The relevant wxWidgets2.9 libraries are also provided for, since they are not yet in the mainline repositories.
 
-Prebuilt binary packages for Ubuntu Raring (13.04), built using this tree, are provided on [my PPA](https://launchpad.net/~bert-massop/+archive/wxhaskell/).
+This fork has been tested to compile against wxWidgets 2.9.3 and wxWidgets 2.9.5 on Ubuntu Raring (13.04) and Ubuntu Precise (12.04 LTS) by means of the Debian package build mechanism.
+
+Building
+========
+
+The easy way
+------------
+
+Make sure you have the necessary dependencies installed. These can be found in *debian/control* after *Build-Depends*.
+
+    fakeroot debian/rules binary
+
+The pbuilder way
+----------------
+
+Make sure your pbuilder environment has the necessary dependencies available. These can be found in *debian/control* after *Build-Depends*.
+
+    debuild -S -i -I
+    pbuilder --build ../haskell-wxhaskell_<version>.dsc --distribution <distro>
